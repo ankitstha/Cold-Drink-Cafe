@@ -1,27 +1,31 @@
 <?php
-require_once('db.php');  // Include the database connection file
+require_once('db.php');  // Include database connection
 
 /* Fetch drinks from the database */
 $query = "SELECT * FROM PRODUCTS";  // SQL query to get all products from the database
 $drinks = [];  // Initialize an empty array to store the drinks
 
-try {
-    /* Fetch all products */
-    $result = $db->query($query);  // Run the query on the database
-    $drinks = $result->fetchAll(PDO::FETCH_ASSOC);  // Store the result as an associative array
+// Query to fetch drinks from the database in descending order by product name
+$query = "SELECT * FROM PRODUCTS ORDER BY productName DESC";
+$drinks = [];
 
+try {
+    // Execute the query and fetch all results in descending order
+    $result = $db->query($query);
+    $drinks = $result->fetchAll(PDO::FETCH_ASSOC);  // Store the fetched results in an associative array
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();  // If an error occurs, display the error message
+    // If an error occurs during fetching, display the error message
+    echo "Error: " . $e->getMessage();
 }
 
-// Handle delete action
-if (isset($_GET['delete_id'])) {  // Check if a delete request has been made
-    $delete_id = $_GET['delete_id'];  // Get the ID of the product to delete
-    $delete_query = "DELETE FROM PRODUCTS WHERE productID = :productID";  // SQL query to delete the product
-    $statement = $db->prepare($delete_query);  // Prepare the delete query
-    $statement->bindParam(':productID', $delete_id);  // Bind the product ID to the query
-    $statement->execute();  // Execute the delete query
-    header("Location: index.php");  // Redirect to the homepage after deletion
+// Handle the delete action when a delete request is made
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];  // Get the product ID to be deleted
+    $delete_query = "DELETE FROM PRODUCTS WHERE productID = :productID";  // SQL to delete the product
+    $stmt = $db->prepare($delete_query);  // Prepare the delete query
+    $stmt->bindParam(':productID', $delete_id);  // Bind the product ID parameter
+    $stmt->execute();  // Execute the delete query
+    header("Location: descending.php");  // Redirect to the current page to refresh the product list
 }
 
 // Get category ID
@@ -49,7 +53,7 @@ $categories = $statement->fetchAll();  // Fetch all categories
 $statement->closeCursor();  // Close the statement
 
 // Get products for selected category
-$queryProducts = 'SELECT * FROM products WHERE categoryID = :categoryID ORDER BY productID';  // Query to get products for a specific category
+$queryProducts = 'SELECT * FROM products WHERE categoryID = :categoryID ORDER BY productName DESC';  // Query to get products for a specific category
 $statement3 = $db->prepare($queryProducts);  // Prepare the SQL query
 $statement3->bindValue(':categoryID', $categoryID);  // Bind the category ID
 $statement3->execute();  // Execute the query
@@ -73,7 +77,7 @@ $statement3->closeCursor();  // Close the statement
         </div>
         
         <div class="container">
-            <div class="categories">
+        <div class="categories">
                 <span id="categories">Categories</span> <br>
                 <aside>
                     <!-- Display a list of categories -->
@@ -91,46 +95,44 @@ $statement3->closeCursor();  // Close the statement
             </div>
 
             <div class="product-list">
-                <span id="table-title"><?php echo htmlspecialchars($category_name); ?></span> 
+                <span id ="table-title">Regular</span>
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th> 
-                            <th>Price</th> 
+                            <th>Name</th>
+                            <th>Price</th>
                             <th></th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                    <?php
-                    // Display each product
-                    foreach ($products as $product) {
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($product['productName']) . "</td>";  // Display product name
-                        echo "<td>$" . number_format($product['listPrice'], 2) . "</td>";  // Display product price
-                        echo "<td>
-                            <a href='?delete_id=" . $product['productID'] . "' onclick='return confirm(\"Are you sure?\")'>Delete</a>  <!-- Delete link with confirmation -->
-                        </td>";
-                        echo "<td>
-                            <a href='modify.php?id=" . $product['productID'] . "'>Modify</a>  <!-- Link to modify the product -->
-                        </td>";
-                        echo "</tr>";
-                    }
-                    ?>
+                        <?php
+                        // Loop through the fetched drinks and display each one
+                        foreach ($drinks as $drink) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($drink['productName']) . "</td>";  // Display drink name
+                            echo "<td>$" . number_format($drink['listPrice'], 2) . "</td>";  // Display price with 2 decimal places
+                            echo "<td>
+                                <a href='?delete_id=" . $drink['productID'] . "' onclick='return confirm(\"Are you sure?\")'>Delete</a>
+                            </td>";  // Link to delete the product with a confirmation prompt
+                            echo "<td>
+                                <a href='modify.php?id=" . $drink['productID'] . "'>Modify</a>
+                            </td>";  // Link to modify the product details
+                            echo "</tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
-            <br>
             <div class="buttons">
-                <a href="add.php" class="button-link">Add Drink</a> <br>  <!-- Link to add a new drink -->
-                <a href="asscending.php" class="button-link">Sort Drink in Ascending Order</a> <br>  <!-- Link to sort drinks in ascending order -->
-                <a href="descending.php" class="button-link">Sort Drink in Descending Order</a>  <!-- Link to sort drinks in descending order -->
+                <a href="add.php" class="button-link">Add Drink</a> <br> 
+                <a href="asscending.php" class="button-link">Sort Drink in Ascending Order</a>
             </div>  
         </div>             
     </main>
     <br>
     <footer>
-        <p>&copy; <?php echo date("Y"); ?> Cold Drink Cafe, Inc.</p>
+        <p>&copy2024 Cold Drink Cafe, Inc.</p> 
     </footer>
 </body>
 </html>

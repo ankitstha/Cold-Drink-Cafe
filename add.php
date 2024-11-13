@@ -1,25 +1,29 @@
 <?php
-require_once('db.php');
+require_once('db.php');  // Include the database connection file
 
+// Check if the form has been submitted via POST method
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the form data
-    $productName = $_POST['productName'];
-    $listPrice = $_POST['listPrice'];
-    $categoryID = $_POST['categoryID'];
-    $productCode = $_POST['productCode'];
+    $productName = $_POST['productName'];  // Get the product name from the form
+    $listPrice = $_POST['listPrice'];  // Get the product price from the form
+    $productCode = $_POST['productCode'];  // Get the product code from the form
+    $categoryID = $_POST['productCategory'];  // Get the selected category ID
 
+    // SQL query to insert a new product into the database
+    $query = "INSERT INTO PRODUCTS (productName, listPrice, categoryID, productCode) 
+              VALUES (:productName, :listPrice, :categoryID, :productCode)";
+    $statement = $db->prepare($query);  // Prepare the SQL query
+    $statement->bindParam(':categoryID', $categoryID);  // Bind the category ID to the query
+    $statement->bindParam(':productName', $productName);  // Bind the product name to the query
+    $statement->bindParam(':listPrice', $listPrice);  // Bind the price to the query
+    $statement->bindParam(':productCode', $productCode);  // Bind the product code to the query
 
-    // Insert new drink into the database
-    $query = "INSERT INTO PRODUCTS (productName, listPrice, categoryID) VALUES (:productName, :listPrice, :categoryID)";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':productName', $productName);
-    $stmt->bindParam(':productName', $productName);
-    $stmt->bindParam(':listPrice', $listPrice);
-    $stmt->bindParam(':categoryID', $categoryID);
-    $stmt->execute();
-
-    // Redirect back to the main page
-    header("Location: index.php");
+    try {
+        $statement->execute();  // Execute the query to insert the product
+        header("Location: index.php");  // Redirect to the main page after successful insertion
+        exit;  // Stop the script after redirection
+    } catch (PDOException $e) {
+        echo "Error adding drink: " . $e->getMessage();  // Display error message if something goes wrong
+    }
 }
 ?>
 
@@ -38,18 +42,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3>Add Drink</h3>
         </div>
 
+        <!-- Form to add a new drink -->
         <form method="POST" action="">
-
-        <label for="productCode">Product Category:</label>
+            <!-- Product category dropdown -->
+            <label for="productCategory">Product Category:</label>
             <select name="productCategory" id="productCategory">
-                <option value="1">Regular</option>
-                <option value="2">Zero Sugar</option>
-                <option value="3">Energy</option>
+                <option value="1">Regular</option>  <!-- Option for Regular drink category -->
+                <option value="2">Zero Sugar</option>  <!-- Option for Zero Sugar drink category -->
+                <option value="3">Energy</option>  <!-- Option for Energy drink category -->
             </select><br>
 
             <label for="productCode">Code:</label>
             <input type="text" name="productCode" id="productCode" required><br>
-            
+                
             <label for="productName">Drink Name:</label>
             <input type="text" name="productName" id="productName" required><br>
 
@@ -59,5 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit">Add Drink</button>
         </form>
     </main>
+    <footer>
+        <p>&copy; <?php echo date("Y"); ?> Cold Drink Cafe, Inc.</p> 
+    </footer>
 </body>
 </html>

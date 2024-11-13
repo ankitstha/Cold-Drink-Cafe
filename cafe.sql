@@ -1,33 +1,31 @@
-/* CREATE THE DATABASE NAMED CAFE */
+-- create and select the database
+DROP DATABASE IF EXISTS cafe;
 CREATE DATABASE cafe;
+USE cafe;  -- MySQL command
 
-/* USE THE DATABASE - CAFE */
-USE cafe;
-
-/* CREATE THE REQUIRED TABLES */
-CREATE TABLE Categories (
-    categoryID INT AUTO_INCREMENT PRIMARY KEY,
-    categoryName VARCHAR(255) NOT NULL
+-- create the tables
+CREATE TABLE categories (
+  categoryID       INT(11)        NOT NULL   AUTO_INCREMENT,
+  categoryName     VARCHAR(255)   NOT NULL,
+  PRIMARY KEY (categoryID)
 );
 
-/* Create the table that includes the product data */
-CREATE TABLE PRODUCTS (
-    productID INT AUTO_INCREMENT PRIMARY KEY,
-    categoryID INT,
-    productCode VARCHAR(255) NOT NULL,
-    productName VARCHAR(255) NOT NULL,
-    listPrice DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (categoryID) REFERENCES Categories(categoryID)
+CREATE TABLE products (
+  productID        INT(11)        NOT NULL   AUTO_INCREMENT,
+  categoryID       VARCHAR(11)        NOT NULL,
+  productCode      VARCHAR(10)    NOT NULL   UNIQUE,
+  productName      VARCHAR(255)   NOT NULL,
+  listPrice        DECIMAL(10,2)  NOT NULL,
+  PRIMARY KEY (productID)
 );
 
-/* Insert the data into the Categories table */
-INSERT INTO Categories (categoryName) VALUES
-('Regular'),
-('Zero Sugar'),
-('Energy');
+-- insert data into the database
+INSERT INTO categories VALUES
+(1, 'Regular'),
+(2, 'Zero Sugar'),
+(3, 'Energy');
 
-/* Insert the data into the Products table */
-INSERT INTO PRODUCTS (productID,categoryID, productCode, productName, listPrice) VALUES
+INSERT INTO products VALUES
 (1, 1, 'a', 'CocaCola', 10.00),
 (2, 1, 'b', 'Sprite', 10.00),
 (3, 1, 'c', 'Solo Original Lemonade', 8.00),
